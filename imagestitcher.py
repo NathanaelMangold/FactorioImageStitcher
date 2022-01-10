@@ -3,17 +3,44 @@ from PIL import Image
 import os
 import re
 
-
 def main():
+    print("=====================================================================")                                                                 
+    print(" _____         _           _        _____ _   _ _       _            ")
+    print("|   __|___ ___| |_ ___ ___|_|___   |   __| |_|_| |_ ___| |_ ___ ___  ")
+    print("|   __| .'|  _|  _| . |  _| | . |  |__   |  _| |  _|  _|   | -_|  _| ")
+    print("|__|  |__,|___|_| |___|_| |_|___|  |_____|_| |_|_| |___|_|_|___|_|   ")
+    print("=====================================================================")
     print("Starting Factorio Image Stitcher!")
-    #inputPath = r".\input"
-    inputPath = r"D:\Filme\Factorio\Raw"
-    outputPath = r".\output"
-    #path = r"C:\Users\nma\AppData\Roaming\Factorio\script-output\screenshots\3270616413\auto_split_nauvis"
 
+    # Get Configuration Data
+    inputPathRaw = input("Input Folder:")
+    if not inputPathRaw:
+        inputPathRaw = "D:\DEV\FactorioImageStitcher\input"
+    
+    if not os.path.exists(inputPathRaw):
+        print(f"Invalid Input Path! '{inputPathRaw}'")
+        return
+
+    outputPathRaw = input("Output Folder:")
+    if not outputPathRaw:
+        outputPathRaw = "D:\DEV\FactorioImageStitcher\output"
+
+    if not os.path.exists(outputPathRaw):
+        print(f"Invalid Output Path! '{outputPathRaw}'")
+        return
+
+    inputPath  = inputPathRaw
+    outputPath = outputPathRaw
+
+    # Process Count
+    inputProcessCountRaw = input("Process Count:")
+    if not inputProcessCountRaw.isdigit():
+        inputProcessCountRaw = 8
+    processCount = int(inputProcessCountRaw)
+
+    # Test on https://regex101.com/ - screenshotNUMBER_xNUMBER_yNUMBER.png
     pattern = re.compile(r"screenshot(\d*)_x(\d*)_y(\d*).png")
 
-    processCount = 8
     processes = []
 
     currentScreenshotID :str = ""
@@ -24,6 +51,10 @@ def main():
     # Get Total File Count of folder
     with os.scandir(inputPath) as it:
         totalFileCount = sum(1 for _ in it)
+
+    if totalFileCount == 0:
+        print("No files in selected input folder!")
+        return
 
     with os.scandir(inputPath) as it:
         # Image File Name, (x,y)
