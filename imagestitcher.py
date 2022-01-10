@@ -1,10 +1,76 @@
 from multiprocessing import Process
+from tkinter.constants import HORIZONTAL
 from PIL import Image
 import os
 import re
-
+import tkinter as tk
+from tkinter import Entry, Tk, filedialog, ttk
+import threading
 
 def main():
+    root = tk.Tk()
+    root.title("Factorio Stitcher")
+
+    canvas = tk.Canvas(root) #, width=600, height=300)
+    canvas.grid(columnspan=3)
+
+    # Description
+    description_label = tk.Label(root, text="Please select the Input and Output folder to start processing the images.")
+    description_label.grid(columnspan=3,row=0)
+
+    # Input Folder
+    input_label = tk.Label(root, text="Input Folder")
+    input_label.grid(column=0, row=1)
+    input_desc = tk.Entry(root, text="Input Path")
+    input_desc.grid(column=1, row=1)
+    input_button = tk.Button(root, text="Browse", command= lambda: selectFolder("Select Input Folder", input_desc))
+    input_button.grid(column=2, row=1)
+
+    # Output Folder
+    output_label = tk.Label(root, text="Output Folder")
+    output_label.grid(column=0, row=2)
+    output_desc = tk.Entry(root, text="Output Path")
+    output_desc.grid(column=1, row=2)
+    output_button = tk.Button(root, text="Browse", command= lambda: selectFolder("Select Output Folder", output_desc))
+    output_button.grid(column=2, row=2)
+
+    # Max Process Counts
+    processCount_label = tk.Label(root, text="Max Parallel Process Count")
+    processCount_label.grid(column=0, row=3)
+    processCount_scale = tk.Scale(root, from_=1, to=16, orient=HORIZONTAL)
+    processCount_scale.grid(column=1, columnspan=2, row=3)
+
+    # Process Button
+    process_button = tk.Button(root, text="Start Stitching", command= lambda: startSticherThreaded(root))
+    process_button.grid(column=0 , columnspan=3, row=4)
+
+    #totalFileCount
+    progress_bar = ttk.Progressbar(root, orient=HORIZONTAL, length=100, mode="determinate")
+    progress_bar.grid(column=0, columnspan=3, row=5)
+
+    #progress_bar["value"] = processedFiles/totalFileCount
+
+    # Start GUI
+    root.mainloop()
+
+# ================= GUI Functions =================
+
+def quit_application(root :Tk):
+    print("Quitting!")
+    root.quit()
+    root.destroy()
+
+def selectFolder(windowTitle: str, e: Entry):
+    folder = filedialog.askdirectory(initialdir="", title=windowTitle)
+    e.insert(0, folder)
+    print("Selected Folder: ", folder)
+
+# ================= Main Program =================
+
+def startSticherThreaded(root :Tk):
+    threading.Thread(target= startStitcher, args=(root,)).start()
+
+def startStitcher(root :Tk):
     print("Starting Factorio Image Stitcher!")
     #inputPath = r".\input"
     inputPath = r"D:\Filme\Factorio\Raw"
@@ -71,7 +137,8 @@ def main():
                 imageData.clear()
                 currentScreenshotID = screenshotID
 
-                print(f"Progress: {processedFiles}/{totalFileCount}")
+                #print(f"Progress: {processedFiles}/{totalFileCount}")
+                
 
             imageData.append([inputPath + r"\\" + fileName, coords])
             processedFiles += 1
@@ -81,6 +148,8 @@ def main():
 
         # Stitch last image once loop finished
         stitchImage(imageData, outputPath, currentScreenshotID)
+
+
 
 def stitchImage(imageParts, outputPath, currentScreenshotID):
     # Get Information about image package
@@ -118,7 +187,6 @@ def stitchImage(imageParts, outputPath, currentScreenshotID):
             
 
     stitched.save(outputPath + "\\" + currentScreenshotID + ".png", "PNG")
-
 
 if __name__ == "__main__":
     main()
