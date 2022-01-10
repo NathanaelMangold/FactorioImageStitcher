@@ -4,7 +4,8 @@ import re
 
 def main():
     print("Starting Factorio Image Stitcher!")
-    inputPath = r".\input"
+    #inputPath = r".\input"
+    inputPath = r"D:\Filme\Factorio\Raw"
     outputPath = r".\output"
     #path = r"C:\Users\nma\AppData\Roaming\Factorio\script-output\screenshots\3270616413\auto_split_nauvis"
 
@@ -13,6 +14,13 @@ def main():
     currentScreenshotID :str = ""
     # Image File, (x,y)
     imageParts = []
+
+    totalFileCount = 0
+    processedFiles = 0
+
+    # Get Total File Count of folder
+    with os.scandir(inputPath) as it:
+        totalFileCount = sum(1 for _ in it)
 
     with os.scandir(inputPath) as it:
         for entry in it:
@@ -23,7 +31,7 @@ def main():
                 print(f"File: '{fileName}' is not a valid screenshot!")
                 continue
 
-            print(f"ID: {match.group(1)} | x: {match.group(2)} | y: {match.group(3)} ")
+            #print(f"ID: {match.group(1)} | x: {match.group(2)} | y: {match.group(3)} ")
 
             screenshotID = match.group(1)
             coords = (match.group(2), match.group(3))
@@ -32,97 +40,56 @@ def main():
                 currentScreenshotID = screenshotID
 
             if(screenshotID != currentScreenshotID):
-                (width, height) = imageParts[0][0].size
-                maxX = 0
-                maxY = 0
-                # find out max x and max y
-                for entry in imageParts:
-                    maxX = max(entry[1][0])
-                    maxY = max(entry[1][1])
-
-                #print(f"Max X Coord: {maxX} ")
-                #print(f"Max Y Coord: {maxY} ")
-
-                imageWidth = width * int(maxY)
-                imageHeight = height * int(maxX)
-                sizeTouple = (imageWidth, imageHeight)
-                # Stitch
-                stitched = Image.new('RGB', sizeTouple)
-                for entry in imageParts:
-                    image :Image = entry[0]
-                    x = int(entry[1][0]) * width
-                    y = int(entry[1][1]) * height
-                    #print(f"Putting Picture {x}, {y}")
-                    stitched.paste(im= image, box=(x, y))
-                        
-
-                stitched.save(outputPath + "\\" + currentScreenshotID + ".png")
-
-                # Close all Images
-                for entry in imageParts:
-                    image :Image = entry[0]
-                    image.close()
-
+                stitchImage(imageParts, outputPath, currentScreenshotID)
                 imageParts.clear()
-
                 currentScreenshotID = screenshotID
-            else:
-                image = Image.open(inputPath + r"\\" + fileName)
-                imageParts.append([image, coords])
 
+                print(f"Progress: {processedFiles}/{totalFileCount}")
 
+            image = Image.open(inputPath + r"\\" + fileName)
+            imageParts.append([image, coords])
 
+            processedFiles += 1
+        
+        stitchImage(imageParts, outputPath, currentScreenshotID)
 
+def stitchImage(imageParts, outputPath, currentScreenshotID):
+    (width, height) = imageParts[0][0].size
+    maxX :int = 0
+    maxY :int = 0
+    # find out max x and max y
+    for entry in imageParts:
+        maxX = max(maxX, int(entry[1][0]))
+        maxY = max(maxY, int(entry[1][1]))
 
-            continue
-            if not fileName.startswith('.') and entry.is_file() and fileName.endswith(".png"):
-                if currentScreenshot != fileName.split("_")[0]:
-                    currentScreenshot = fileName.split("_")[0]
+    #print(f"Max X Coord: {maxX} ")
+    #print(f"Max Y Coord: {maxY} ")
 
-                    if currentScreenshot != "" and len(imageParts) > 1:
-                        image1 :Image = imageParts[0]
-                        image2 :Image = imageParts[1]
+    imageWidth = width * int(maxY) + width
+    imageHeight = height * int(maxX) + height
+    sizeTouple = (imageWidth, imageHeight)
 
-                        (width1, height1) = image1.size
-                        (width2, height2) = image2.size
+    #print(f"Target Image Size: {sizeTouple}")
 
-                        result_width = width1 + width2
-                        result_height = max(height1, height2)
+    # Stitch
+    stitched = Image.new('RGB', sizeTouple)
+    for entry in imageParts:
+        image :Image = entry[0]
+       # print(f"Putting Image {entry[1][0]}, {entry[1][1]}")
+        x = int(entry[1][0]) * width
+        y = int(entry[1][1]) * height
 
-                        result = Image.new('RGB', (result_width, result_height))
-                        result.paste(im=image1, box=(0, 0))
-                        result.paste(im=image2, box=(width1, 0))
+        #print(f"Putting Picture {x}, {y}")
+        stitched.paste(im= image, box=(x, y))
+            
 
-                        result.save(".\output\ " + currentScreenshot + ".png")
+    stitched.save(outputPath + "\\" + currentScreenshotID + ".png", "PNG")
 
-                        print("Stitched:")
-                        print(image1.filename)
-                        print(image2.filename)
-                        imageParts.clear()
+    # Close all Images
+    for entry in imageParts:
+        image :Image = entry[0]
+        image.close()
 
-                if currentScreenshot != "":
-                    imageParts.append(Image.open(path + r"\\" + fileName))
-
-    #image1 = Image.open(file1)
-    #image2 = Image.open(file2)
-
-    #(width1, height1) = image1.size
-    #(width2, height2) = image2.size
-
-    #result_width = width1 + width2
-    #result_height = max(height1, height2)
-
-    #result = Image.new('RGB', (result_width, result_height))
-    #result.paste(im=image1, box=(0, 0))
-    #result.paste(im=image2, box=(width1, 0))
-                    
-
-
-    #print(path)
-    #[entry for entry in os.scandir('.') if entry.is_file()]
-
-def stitchImage():
-    pass
 
 if __name__ == "__main__":
     main()
