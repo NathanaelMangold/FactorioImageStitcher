@@ -3,83 +3,45 @@ from tkinter.constants import HORIZONTAL
 from PIL import Image
 import os
 import re
-import tkinter as tk
-from tkinter import Entry, Tk, filedialog, ttk
-import threading
 
 def main():
-    root = tk.Tk()
-    root.title("Factorio Stitcher")
-
-    canvas = tk.Canvas(root) #, width=600, height=300)
-    canvas.grid(columnspan=3)
-
-    # Description
-    description_label = tk.Label(root, text="Please select the Input and Output folder to start processing the images.")
-    description_label.grid(columnspan=3,row=0)
-
-    # Input Folder
-    input_label = tk.Label(root, text="Input Folder")
-    input_label.grid(column=0, row=1)
-    input_desc = tk.Entry(root, text="Input Path")
-    input_desc.grid(column=1, row=1)
-    input_button = tk.Button(root, text="Browse", command= lambda: selectFolder("Select Input Folder", input_desc))
-    input_button.grid(column=2, row=1)
-
-    # Output Folder
-    output_label = tk.Label(root, text="Output Folder")
-    output_label.grid(column=0, row=2)
-    output_desc = tk.Entry(root, text="Output Path")
-    output_desc.grid(column=1, row=2)
-    output_button = tk.Button(root, text="Browse", command= lambda: selectFolder("Select Output Folder", output_desc))
-    output_button.grid(column=2, row=2)
-
-    # Max Process Counts
-    processCount_label = tk.Label(root, text="Max Parallel Process Count")
-    processCount_label.grid(column=0, row=3)
-    processCount_scale = tk.Scale(root, from_=1, to=16, orient=HORIZONTAL)
-    processCount_scale.grid(column=1, columnspan=2, row=3)
-
-    # Process Button
-    process_button = tk.Button(root, text="Start Stitching", command= lambda: startSticherThreaded(root))
-    process_button.grid(column=0 , columnspan=3, row=4)
-
-    #totalFileCount
-    progress_bar = ttk.Progressbar(root, orient=HORIZONTAL, length=100, mode="determinate")
-    progress_bar.grid(column=0, columnspan=3, row=5)
-
-    #progress_bar["value"] = processedFiles/totalFileCount
-
-    # Start GUI
-    root.mainloop()
-
-# ================= GUI Functions =================
-
-def quit_application(root :Tk):
-    print("Quitting!")
-    root.quit()
-    root.destroy()
-
-def selectFolder(windowTitle: str, e: Entry):
-    folder = filedialog.askdirectory(initialdir="", title=windowTitle)
-    e.insert(0, folder)
-    print("Selected Folder: ", folder)
-
-# ================= Main Program =================
-
-def startSticherThreaded(root :Tk):
-    threading.Thread(target= startStitcher, args=(root,)).start()
-
-def startStitcher(root :Tk):
+    print("=====================================================================")                                                                 
+    print(" _____         _           _        _____ _   _ _       _            ")
+    print("|   __|___ ___| |_ ___ ___|_|___   |   __| |_|_| |_ ___| |_ ___ ___  ")
+    print("|   __| .'|  _|  _| . |  _| | . |  |__   |  _| |  _|  _|   | -_|  _| ")
+    print("|__|  |__,|___|_| |___|_| |_|___|  |_____|_| |_|_| |___|_|_|___|_|   ")
+    print("=====================================================================")
     print("Starting Factorio Image Stitcher!")
-    #inputPath = r".\input"
-    inputPath = r"D:\Filme\Factorio\Raw"
-    outputPath = r".\output"
-    #path = r"C:\Users\nma\AppData\Roaming\Factorio\script-output\screenshots\3270616413\auto_split_nauvis"
 
+    # Get Configuration Data
+    inputPathRaw = input("Input Folder:")
+    if not inputPathRaw:
+        inputPathRaw = "D:\DEV\FactorioImageStitcher\input"
+    
+    if not os.path.exists(inputPathRaw):
+        print(f"Invalid Input Path! '{inputPathRaw}'")
+        return
+
+    outputPathRaw = input("Output Folder:")
+    if not outputPathRaw:
+        outputPathRaw = "D:\DEV\FactorioImageStitcher\output"
+
+    if not os.path.exists(outputPathRaw):
+        print(f"Invalid Output Path! '{outputPathRaw}'")
+        return
+
+    inputPath  = inputPathRaw
+    outputPath = outputPathRaw
+
+    # Process Count
+    inputProcessCountRaw = input("Process Count:")
+    if not inputProcessCountRaw.isdigit():
+        inputProcessCountRaw = 8
+    processCount = int(inputProcessCountRaw)
+
+    # Test on https://regex101.com/ - screenshotNUMBER_xNUMBER_yNUMBER.png
     pattern = re.compile(r"screenshot(\d*)_x(\d*)_y(\d*).png")
 
-    processCount = 8
     processes = []
 
     currentScreenshotID :str = ""
@@ -90,6 +52,10 @@ def startStitcher(root :Tk):
     # Get Total File Count of folder
     with os.scandir(inputPath) as it:
         totalFileCount = sum(1 for _ in it)
+
+    if totalFileCount == 0:
+        print("No files in selected input folder!")
+        return
 
     with os.scandir(inputPath) as it:
         # Image File Name, (x,y)
