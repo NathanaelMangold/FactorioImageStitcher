@@ -50,6 +50,7 @@ def main():
 
     #progress_bar["value"] = processedFiles/totalFileCount
 
+
     # Start GUI
     root.mainloop()
 
