@@ -39,7 +39,7 @@ def main():
         inputProcessCountRaw = 8
     processCount = int(inputProcessCountRaw)
 
-    # Test on https://regex101.com/ - screenshotNUMBER_xNUMBER_yNUMBER.png
+    # Test on https://regex101.com/ - Pattern match: screenshotNUMBER_xNUMBER_yNUMBER.png e.g. screenshot1234_x0_y13.png
     pattern = re.compile(r"screenshot(\d*)_x(\d*)_y(\d*).png")
 
     processes = []
