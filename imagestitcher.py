@@ -40,17 +40,16 @@ def main():
     processCount_scale = tk.Scale(root, from_=1, to=16, orient=HORIZONTAL)
     processCount_scale.grid(column=1, columnspan=2, row=3)
 
-    # Process Button
-    process_button = tk.Button(root, text="Start Stitching", command= lambda: startSticherThreaded(root))
-    process_button.grid(column=0 , columnspan=3, row=4)
-
     #totalFileCount
-    progress_bar = ttk.Progressbar(root, orient=HORIZONTAL, length=100, mode="determinate")
+    progress_label = tk.Label(root, text=)
+
+    progress_bar = ttk.Progressbar(root, orient=HORIZONTAL, length=300, mode="determinate")
     progress_bar.grid(column=0, columnspan=3, row=5)
 
-    #progress_bar["value"] = processedFiles/totalFileCount
-
-
+    # Process Button
+    process_button = tk.Button(root, text="Start Stitching", command= lambda: startStitcher(root, progress_bar))
+    process_button.grid(column=0 , columnspan=3, row=4)    
+    
     # Start GUI
     root.mainloop()
 
@@ -68,13 +67,10 @@ def selectFolder(windowTitle: str, e: Entry):
 
 # ================= Main Program =================
 
-def startSticherThreaded(root :Tk):
-    threading.Thread(target= startStitcher, args=(root,)).start()
-
-def startStitcher(root :Tk):
+def startStitcher(root :Tk, progressbar):
     print("Starting Factorio Image Stitcher!")
     #inputPath = r".\input"
-    inputPath = r"D:\Filme\Factorio\Raw"
+    inputPath = r".\input" #D:\Filme\Factorio\Raw"
     outputPath = r".\output"
     #path = r"C:\Users\nma\AppData\Roaming\Factorio\script-output\screenshots\3270616413\auto_split_nauvis"
 
@@ -87,10 +83,15 @@ def startStitcher(root :Tk):
 
     totalFileCount = 0
     processedFiles = 0
+    progressbar["value"] = 0
+    
+
 
     # Get Total File Count of folder
     with os.scandir(inputPath) as it:
         totalFileCount = sum(1 for _ in it)
+
+    progressbar["maximum"]=totalFileCount
 
     with os.scandir(inputPath) as it:
         # Image File Name, (x,y)
@@ -140,15 +141,19 @@ def startStitcher(root :Tk):
 
                 #print(f"Progress: {processedFiles}/{totalFileCount}")
                 
+            processedFiles += 1
+            progressbar['value'] = processedFiles
 
             imageData.append([inputPath + r"\\" + fileName, coords])
-            processedFiles += 1
+            root.update_idletasks()
 
         for process in processes:
             process.join()
 
         # Stitch last image once loop finished
         stitchImage(imageData, outputPath, currentScreenshotID)
+
+        print("Finished Stitching!")
 
 
 
