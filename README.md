@@ -12,12 +12,14 @@ To this:
 ## Installation
 Tested for Python 3.10.1!
 
-To run it you need to install the [PILLOW Image Library](https://github.com/python-pillow/Pillow).
+1.) To run it you need to install the [PILLOW Image Library](https://github.com/python-pillow/Pillow).
 
 Install Pillow Image Library:
 ```
 py -m pip install --upgrade Pillow
 ```
+
+2.) Download the latest release from the [Release Section](https://github.com/NathanaelMangold/FactorioImageStitcher/releases)
 
 ## Run the Programm
 ```
