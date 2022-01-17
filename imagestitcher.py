@@ -2,6 +2,7 @@ from multiprocessing import Process
 from PIL import Image
 import os
 import re
+import time
 
 def main():
     # Print Welcome Text
@@ -29,9 +30,9 @@ def main():
     process_count = 8
 
     current_screenshot_id :str = ""
-
     total_file_count = 0
     processed_files = 0
+    start_time = time.time()
 
     # Get Total File Count of folder
     with os.scandir(input_path) as it:
@@ -79,7 +80,8 @@ def main():
                 image_data.clear()
                 current_screenshot_id = screenshot_id
 
-                #print(f"Progress: {processedFiles}/{totalFileCount}")
+                progress_bar(processed_files, total_file_count)
+                #print(f"Progress: {processed_files}/{total_file_count}")
                 
 
             image_data.append([input_path + r"\\" + file_name, coords])
@@ -91,6 +93,14 @@ def main():
         # Stitch last image once loop finished
         stitchImage(image_data, output_path, current_screenshot_id)
 
+        print(f"Finished stitching all images! It took {round((time.time() - start_time) / 60,2)} minutes.")
+
+def progress_bar(current, total, bar_length = 20):
+    percent = float(current) * 100 / total
+    arrow   = '-' * int(percent/100 * bar_length - 1) + '>'
+    spaces  = ' ' * (bar_length - len(arrow))
+
+    print('Progress: [%s%s] %d %%' % (arrow, spaces, percent), end='\r')
 
 
 def stitchImage(image_parts, output_path, current_screenshot_id):
