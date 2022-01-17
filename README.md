@@ -1,7 +1,7 @@
 # Factorio Image Stitcher
 
 ## Overview
-This Python Programm stitches multi part screenshots from the [FacAutoScreenshot](https://mods.factorio.com/mod/FacAutoScreenshot) mod together for the game [Factorio](https://www.factorio.com/).
+This Python Program stitches multi-part screenshots from the [FacAutoScreenshot](https://mods.factorio.com/mod/FacAutoScreenshot) mod together for the game [Factorio](https://www.factorio.com/).
 
 Converts this:
 ![Sliced Images](./readme/slices.png)
@@ -10,8 +10,9 @@ To this:
 ![Stitched Image](./readme/stitched.png)
 
 ## Installation
-Tested for Python 3.10.1
-It uses the [PILLOW Image Library](https://github.com/python-pillow/Pillow).
+Tested for Python 3.10.1!
+
+To run it you need to install the [PILLOW Image Library](https://github.com/python-pillow/Pillow).
 
 Install Pillow Image Library:
 ```
@@ -24,4 +25,4 @@ python .\imagestitcher.py
 ```
 Then provide the input/output folder.
 
-![Usage Example](./readme/useexample.gif)
+![Usage Example](./readme/UseExample.gif)
