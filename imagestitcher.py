@@ -84,7 +84,7 @@ def main():
                 #print(f"Progress: {processed_files}/{total_file_count}")
                 
 
-            image_data.append([input_path + r"\\" + file_name, coords])
+            image_data.append([os.path.join(input_path, file_name), coords])
             processed_files += 1
 
         for process in processes:
@@ -132,7 +132,7 @@ def stitchImage(image_parts, output_path, current_screenshot_id):
         stitched.paste(im= image, box=(x, y))
         image.close()
 
-    stitched.save(output_path + "\\" + current_screenshot_id + ".png", "PNG")
+    stitched.save(os.path.join(output_path, current_screenshot_id + ".png"), "PNG")
 
 def getDirectoryPath(prompt_message :str):
     while True:
